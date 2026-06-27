@@ -56,6 +56,8 @@ database/
 
 routes/
 └── api.php                    # All API routes
+
+Booking API.postman_collection.json   # Postman collection (import & test all endpoints)
 ```
 
 ## Database Schema
@@ -210,6 +212,49 @@ composer dev
 2. Configure `.env` for MySQL (`DB_DATABASE=bookingora`)
 3. Run `php artisan migrate --seed` from the project directory
 4. Access via Laragon virtual host or `php artisan serve`
+
+## Postman Collection
+
+A ready-made Postman collection is included at the project root:
+
+**File:** [`Booking API.postman_collection.json`](Booking%20API.postman_collection.json)
+
+### Import
+
+1. Open **Postman**
+2. Click **Import** → select `Booking API.postman_collection.json`
+3. The collection **Booking API** appears in your sidebar
+
+### Collection variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `base_url` | `http://localhost:8000/api` | API base URL — change if using Laragon vhost or another port |
+| `token` | *(empty)* | Auto-filled after **Register** or **Login** (Bearer token for protected routes) |
+| `booking_ref` | *(empty)* | Auto-filled after **Create Booking** (used by **Checkout Booking**) |
+
+### Included requests
+
+**Authentication**
+- `Register` — create a new user
+- `Login` — login and save `token` automatically (Test script)
+- `Me` — get current user (`Bearer {{token}}`)
+- `Logout` — revoke token
+
+**Bookings**
+- `Create Booking` — transactional booking; saves `booking_ref` automatically (Test script)
+- `Checkout Booking` — complete checkout using `{{booking_ref}}`
+
+### Recommended test flow
+
+1. Start the server: `php artisan serve`
+2. Run **Register** (or **Login** with seeded user `test@example.com` / `password`)
+3. Run **Me** to confirm the token works
+4. Run **Create Booking** — `booking_ref` is saved for the next step
+5. Run **Checkout Booking** — triggers the `BookingCheckedOut` event
+6. Check logs: `php artisan pail` or `storage/logs/laravel.log`
+
+> **Tip:** If your server runs on a different host/port, update the `base_url` collection variable (Collection → Variables tab).
 
 ## API Usage Examples
 
